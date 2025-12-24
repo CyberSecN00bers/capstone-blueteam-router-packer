@@ -35,13 +35,13 @@ source "proxmox-iso" "blueteam_router" {
   boot_iso {
     type             = "scsi"
     iso_url          = "https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/x86_64/alpine-standard-3.23.2-x86_64.iso"
-    iso_checksum     = "file:https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/x86_64/alpine-standard-3.23.2-x86_64.iso.sha256"
+    iso_checksum     = "sha256:1b8be1ce264bf50048f2c93d8b4e72dd0f791340090aaed022b366b9a80e3518"
     iso_storage_pool = "hdd-data"
 
-    # Proxmox node tự tải ISO (đỡ bước Packer upload -> giảm nguy cơ “broken pipe”)
+
     iso_download_pve = true
 
-    # Unmount ISO khỏi template sau khi build xong
+  
     unmount = true
   }
 
@@ -58,7 +58,7 @@ source "proxmox-iso" "blueteam_router" {
 
   # Fix iothread requirement
   scsi_controller = "virtio-scsi-single" # required if io_thread=true :contentReference[oaicite:2]{index=2}
-  qemu_agent      = false                # dùng ssh_host static
+  qemu_agent      = false              
 
   # =========================
   # Disk
