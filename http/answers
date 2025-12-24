@@ -28,8 +28,6 @@ DNSOPTS="1.1.1.1"
 TIMEZONEOPTS="-z UTC"
 PROXYOPTS=none
 APKREPOSOPTS="-1 -c"
-
-# ✅ ADD THESE (avoid "Setup a user?" prompt)
 USEROPTS="-a -u blue"
 USERSSHKEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIC5JU9neFzrsWZKMtEJ1lTcWLvhvKqQUd80/Nla7oqT blue-router"
 
