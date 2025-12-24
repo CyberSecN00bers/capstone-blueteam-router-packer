@@ -1,83 +1,126 @@
-# =========================
-# Proxmox connection
-# =========================
-variable "proxmox_url" { type = string }
-variable "proxmox_username" { type = string }
-variable "proxmox_token" { type = string, sensitive = true }
-variable "proxmox_node" { type = string }
+variable "proxmox_url" {
+  type        = string
+  description = "Proxmox API URL, e.g. https://pve:8006/api2/json"
+}
+
+variable "proxmox_username" {
+  type        = string
+  description = "Proxmox username incl. realm. For token auth: user@realm!tokenid"
+}
+
+variable "proxmox_token" {
+  type        = string
+  sensitive   = true
+  description = "Proxmox API token secret (NOT the token id)."
+}
+
+variable "proxmox_node" {
+  type        = string
+  description = "Proxmox node name to build on."
+}
 
 variable "proxmox_insecure_skip_tls_verify" {
-  type    = bool
-  default = true
+  type        = bool
+  default     = true
+  description = "Skip TLS verify for Proxmox API."
 }
 
 variable "vm_id" {
-  type    = number
-  default = 0
+  type        = number
+  default     = 0
+  description = "Optional fixed VMID. Set 0 to auto-assign."
 }
 
-# =========================
-# ISO download (public source)
-# =========================
-variable "iso_url" {
-  type    = string
-  default = "https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/x86_64/alpine-standard-3.23.2-x86_64.iso"
+variable "disk_storage_pool" {
+  type        = string
+  default     = "local-lvm"
+  description = "Proxmox storage pool for the VM disk."
 }
 
-# Packer checksum format thường là "sha256:<hash>"
-variable "iso_checksum" {
-  type = string
+variable "disk_size" {
+  type        = string
+  default     = "8G"
+  description = "VM disk size, e.g. 8G"
 }
 
-variable "iso_storage_pool" {
-  type    = string
-  default = "hdd-data"
+variable "cpu_cores" {
+  type        = number
+  default     = 2
+  description = "Number of vCPU cores"
 }
 
-variable "iso_download_pve" {
-  type    = bool
-  default = true
+variable "memory_mb" {
+  type        = number
+  default     = 512
+  description = "Memory in MB"
 }
 
-variable "unmount_iso" {
-  type    = bool
-  default = true
+variable "template_prefix" {
+  type        = string
+  default     = "tpl"
+  description = "Template name prefix"
 }
 
-# =========================
-# VM sizing
-# =========================
-variable "disk_storage_pool" { type = string }
-variable "disk_size" { type = string }
-variable "cpu_cores" { type = number }
-variable "memory_mb" { type = number }
+variable "hostname" {
+  type        = string
+  default     = "blue-router"
+  description = "Hostname (also used in template name)"
+}
 
-variable "template_prefix" { type = string, default = "tpl" }
-variable "hostname" { type = string, default = "blue-router" }
+variable "wan_bridge" {
+  type        = string
+  description = "Proxmox bridge for WAN (net0)"
+}
 
-# =========================
-# Bridges
-# =========================
-variable "wan_bridge"     { type = string }
-variable "transit_bridge" { type = string }
-variable "dmz_bridge"     { type = string }
-variable "blue_bridge"    { type = string }
+variable "transit_bridge" {
+  type        = string
+  description = "Proxmox bridge for transit"
+}
 
-# =========================
-# Live ISO bootstrap network
-# =========================
-variable "live_wan_iface" { type = string, default = "eth0" }
-variable "wan_ip_cidr" { type = string }
-variable "wan_gateway" { type = string }
-variable "dns_server" { type = string, default = "1.1.1.1" }
+variable "dmz_bridge" {
+  type        = string
+  description = "Proxmox bridge for DMZ"
+}
 
-# =========================
-# SSH for packer provision
-# =========================
-variable "ssh_host" { type = string }
-variable "ssh_private_key_file" { type = string }
+variable "blue_bridge" {
+  type        = string
+  description = "Proxmox bridge for Blue LAN"
+}
+
+variable "live_wan_iface" {
+  type        = string
+  default     = "eth0"
+  description = "Interface name in the live ISO environment (usually eth0)."
+}
+
+variable "wan_ip_cidr" {
+  type        = string
+  description = "WAN IP/CIDR for the Blue router (also used during live ISO bootstrap), e.g. 10.10.100.21/24"
+}
+
+variable "wan_gateway" {
+  type        = string
+  description = "WAN gateway, e.g. 10.10.100.1"
+}
+
+variable "dns_server" {
+  type        = string
+  default     = "1.1.1.1"
+  description = "DNS server used in live ISO to fetch answerfile"
+}
+
+variable "ssh_host" {
+  type        = string
+  description = "IP that Packer will SSH to after install, e.g. 10.10.100.21"
+}
+
+variable "ssh_private_key_file" {
+  type        = string
+  description = "Private key path that matches ROOTSSHKEY in http/answers (e.g. /root/.ssh/id_ed25519)."
+}
 
 variable "answerfile_name" {
-  type    = string
-  default = "answers"
+  type        = string
+  default     = "answers"
+  description = "Filename inside http/ used as setup-alpine answerfile."
 }
