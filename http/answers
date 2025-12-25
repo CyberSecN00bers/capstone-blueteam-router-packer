@@ -8,11 +8,7 @@ INTERFACESOPTS="auto lo
 iface lo inet loopback
 
 auto eth0
-iface eth0 inet static
-    address 10.10.100.21
-    netmask 255.255.255.0
-    gateway 10.10.100.1
-    hostname blue-router
+iface eth0 inet dhcp
 
 auto eth1
 iface eth1 inet manual
@@ -29,10 +25,10 @@ TIMEZONEOPTS="-z UTC"
 PROXYOPTS=none
 APKREPOSOPTS="-1 -c"
 USEROPTS="-a -u blue"
-USERSSHKEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIC5JU9neFzrsWZKMtEJ1lTcWLvhvKqQUd80/Nla7oqT blue-router"
+USERSSHKEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGMnW3F4VgXwo3SLlivnqC1etHcQ14v4JgS2q6QxVHGI root@capstone-manager"
 
 SSHDOPTS=openssh
-ROOTSSHKEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIC5JU9neFzrsWZKMtEJ1lTcWLvhvKqQUd80/Nla7oqT blue-router"
+ROOTSSHKEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGMnW3F4VgXwo3SLlivnqC1etHcQ14v4JgS2q6QxVHGI root@capstone-manager"
 
 DISKOPTS="-m sys /dev/sda"
 

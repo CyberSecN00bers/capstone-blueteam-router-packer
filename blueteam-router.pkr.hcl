@@ -34,12 +34,12 @@ source "proxmox-iso" "blueteam_router" {
   # =========================
   boot_iso {
     type             = "scsi"
-    iso_url          = "https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/x86_64/alpine-standard-3.23.2-x86_64.iso"
-    iso_checksum     = "sha256:1b8be1ce264bf50048f2c93d8b4e72dd0f791340090aaed022b366b9a80e3518"
+    iso_url          = "https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/x86_64/alpine-virt-3.23.2-x86_64.iso"
+    iso_checksum     = "file:https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/x86_64/alpine-virt-3.23.2-x86_64.iso.sha256"
     iso_storage_pool = "hdd-data"
 
 
-    iso_download_pve = true
+    iso_download_pve = false
 
   
     unmount = true
@@ -58,7 +58,7 @@ source "proxmox-iso" "blueteam_router" {
 
   # Fix iothread requirement
   scsi_controller = "virtio-scsi-single" # required if io_thread=true :contentReference[oaicite:2]{index=2}
-  qemu_agent      = false              
+  qemu_agent      = true
 
   # =========================
   # Disk
@@ -113,10 +113,12 @@ source "proxmox-iso" "blueteam_router" {
     "<enter><wait>",
     "root<enter><wait>",
 
-    # Bring up WAN in live ISO to fetch answerfile
+    # Bring up WAN in live ISO to fetch "ip link set "
     "ip link set ${var.live_wan_iface} up<enter>",
-    "ip addr add ${var.wan_ip_cidr} dev ${var.live_wan_iface}<enter>",
-    "ip route add default via ${var.wan_gateway}<enter>",
+    "udhcpc -i ${var.live_wan_iface}<enter>",
+    # "ip link set ${var.live_wan_iface} up<enter>",
+    # "ip addr add ${var.wan_ip_cidr} dev ${var.live_wan_iface}<enter>",
+    # "ip route add default via ${var.wan_gateway}<enter>",
     "echo nameserver ${var.dns_server} > /etc/resolv.conf<enter>",
 
     # Fetch answerfile from Packer HTTP server
@@ -124,10 +126,7 @@ source "proxmox-iso" "blueteam_router" {
 
     # Non-interactive Alpine install
     # [Suy luận] Với disk type scsi thường là /dev/sda; nếu máy bạn ra /dev/vda thì đổi lại.
-    "ERASE_DISKS=/dev/sda setup-alpine -e -f /tmp/answers<enter>",
-
-    "<wait5m>",
-    "reboot<enter>"
+    "ERASE_DISKS=/dev/sda setup-alpine -e -f /tmp/answers && mount /dev/sda3 /mnt && apk add --root /mnt qemu-guest-agent && chroot /mnt rc-update add qemu-guest-agent default && reboot<enter>",
   ]
 
   # =========================
@@ -135,12 +134,14 @@ source "proxmox-iso" "blueteam_router" {
   # =========================
   communicator = "ssh"
   ssh_username = "root"
-  ssh_host     = var.ssh_host
+  # ssh_host     = var.ssh_host
   ssh_port     = 22
   ssh_timeout  = "25m"
 
   # Use pathexpand to handle "~"
   ssh_private_key_file = pathexpand(var.ssh_private_key_file)
+  cloud_init              = true
+  cloud_init_storage_pool = "local-lvm"
 }
 
 build {

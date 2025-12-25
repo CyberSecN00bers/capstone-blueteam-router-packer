@@ -9,6 +9,7 @@ apk add --no-cache \
   frr frr-openrc \
   iproute2 \
   curl
+  acpid
 
 # ---- SSH: harden nhưng KHÔNG restart networking, hạn chế restart sshd ----
 echo "[+] Ensure sshd runtime dir exists..."
@@ -209,7 +210,26 @@ EOF
 chown -R frr:frr /etc/frr || true
 chmod 640 /etc/frr/frr.conf || true
 
+echo "[+] Enable ACPI for graceful shutdown..."
+rc-update add acpid default
+# rc-service acpid start
+rc-service acpid start > /dev/null 2>&1 || true
+
 rc-update add frr default || true
-rc-service frr start || true
+# rc-service frr start || true
+rc-service frr start > /dev/null 2>&1 || true
+
+# --- FIX QUAN TRỌNG CHO ALPINE ---
+# QEMU Agent gọi lệnh 'shutdown' nhưng Alpine chỉ có 'poweroff'.
+# Tạo symlink để đánh lừa Agent.
+if [ ! -f /sbin/shutdown ]; then
+  ln -s /sbin/poweroff /sbin/shutdown
+fi
+
+echo "[+] Restarting QEMU Agent..."
+rc-service qemu-guest-agent restart > /dev/null 2>&1 || true
+
 
 echo "[+] Done."
+
+# poweroff
